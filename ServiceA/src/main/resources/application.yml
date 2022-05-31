@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+##Actuator Mechanism
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+
+resilience4j:
+
+## @CircuitBreaker
+  circuitbreaker:
+    instances:
+      serviceA:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+## @Retry
+  retry:
+    instances:
+      serviceA:
+        registerHealthIndicator: true
+        maxRetryAttempts: 5
+        waitDuration: 10s
+        eventConsumerBufferSize: 100
+
+## @RateLimiter
+  ratelimiter:
+    instances:
+      serviceA:
+        registerHealthIndicator: true
+        limitForPeriod: 2
+        limitRefreshPeriod: 5s
+        timeoutDuration: 10s
+        eventConsumerBufferSize: 100
+
+## @Bulkhead
+  bulkhead:
+    instances:
+      serviceA:
+        maxWaitDuration: 3s
+        maxConcurrentCalls: 2
+
+## @TimeLimiter
+  timeLimiter:
+    instances:
+      serviceA:
+        timeoutDuration: 2s
+        cancelRunningFuture: true  #cancel should be called on running future
